@@ -1,21 +1,21 @@
 <template>
   <div class="user-management-page">
-    <!-- Header -->
     <AppHeader />
 
-    <!-- Main content -->
     <main class="user-management-container">
       <section class="user-management-card">
         <h1 class="page-title">Quản lý người dùng</h1>
 
-        <!-- Filter and Search -->
         <div class="filter-search">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Tìm kiếm theo username hoặc email..."
-            class="search-input"
-          />
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Tìm kiếm theo username hoặc email..."
+              class="search-input"
+            />
+          </div>
           <select v-model="filterRole" class="filter-select">
             <option value="">Tất cả quyền</option>
             <option v-for="role in roles" :value="role" :key="role">{{ role }}</option>
@@ -27,10 +27,10 @@
           </select>
         </div>
 
-        <!-- Loading state -->
-        <div v-if="loading" class="loading">Đang tải...</div>
+        <div v-if="loading" class="loading-container">
+          <div class="spinner"></div>
+        </div>
 
-        <!-- User table -->
         <div v-else class="user-table">
           <table>
             <thead>
@@ -68,8 +68,14 @@
                   </span>
                 </td>
                 <td>
-                  {{ user.status === 'active' ? 'Hoạt động' : 'Bị khóa' }}
-                  {{ user.ban_until ? `đến ${formatDate(user.ban_until)}` : '' }}
+                  <span 
+                    class="status-badge" 
+                    :class="user.status === 'active' ? 'status-active' : 'status-blocked'">
+                    {{ user.status === 'active' ? 'Hoạt động' : 'Bị khóa' }}
+                  </span>
+                  <small v-if="user.ban_until" class="ban-until-text">
+                    đến {{ formatDate(user.ban_until) }}
+                  </small>
                 </td>
                 <td>
                   <select
@@ -107,7 +113,6 @@
             </tbody>
           </table>
 
-          <!-- Pagination -->
           <div class="pagination">
             <button
               :disabled="page <= 1"
@@ -294,70 +299,94 @@ export default {
 </script>
 
 <style scoped>
+/* Imports giữ nguyên */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Sora:wght@400;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+/* --- General Page Layout --- */
 .user-management-page {
   min-height: 100vh;
   background: var(--bg-color, #1a1d29);
   color: var(--text-color, #ffffff);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden; /* Tránh scroll ngang không mong muốn */
 }
 
 .user-management-container {
-  max-width: 1000px;
+  max-width: 1200px; /* Tăng max-width cho màn hình lớn */
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
 .user-management-card {
+  background: rgba(26, 29, 41, 0.7); /* Thêm nền nhẹ */
   backdrop-filter: blur(15px);
-  border: 2px solid rgba(34, 197, 94, 0.5);
+  border: 1px solid rgba(34, 197, 94, 0.4); /* Viền mỏng, tinh tế hơn */
   border-radius: 1rem;
-  padding: 2.5rem;
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.25);
+  padding: 3rem; /* Tăng không gian bên trong */
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .user-management-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 35px rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 35px rgba(34, 197, 94, 0.3);
 }
 
 .page-title {
   font-family: 'Manrope', sans-serif;
   font-size: 2.25rem;
   font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem; /* Tăng khoảng cách */
   text-align: center;
   animation: fade-in 0.8s ease-in;
 }
 
+/* --- Filter & Search --- */
 .filter-search {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.search-wrapper {
+  flex: 1;
+  position: relative;
+  min-width: 250px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.3s ease;
 }
 
 .search-input {
-  flex: 1;
-  padding: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid #22c55e;
   border-radius: 0.5rem;
   color: #ffffff;
   font-family: 'Manrope', sans-serif;
   font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
+.search-input:focus + .search-icon {
+    color: #34d399;
+}
+
 .filter-select {
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid #22c55e;
   border-radius: 0.5rem;
@@ -365,8 +394,21 @@ export default {
   font-family: 'Manrope', sans-serif;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+.search-input:focus,
+.filter-select:focus,
+.ban-select:focus,
+.role-select:focus {
+  outline: none;
+  border-color: #34d399; /* Màu xanh lá sáng hơn */
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* --- User Table --- */
 .user-table {
   overflow-x: auto;
 }
@@ -379,30 +421,36 @@ table {
 
 th,
 td {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
   text-align: left;
-  border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  vertical-align: middle;
 }
 
 th {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.1);
   color: #22c55e;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-row {
+    transition: background-color 0.3s ease;
 }
 
 .user-row:hover {
-  background: rgba(34, 197, 94, 0.1);
-  transform: translateX(5px);
-  transition: background 0.3s ease, transform 0.3s ease;
+  background: rgba(34, 197, 94, 0.08);
 }
 
-.role-badge {
+/* Badges */
+.role-badge, .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 1rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px; /* Pill shape */
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
@@ -411,57 +459,64 @@ th {
 }
 
 .role-user {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 1px solid #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-}
-
-.role-user:hover {
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa; /* Sáng hơn */
 }
 
 .role-author {
-  background: rgba(234, 179, 8, 0.2);
-  color: #eab308;
-  border: 1px solid #eab308;
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15; /* Sáng hơn */
 }
 
 .role-admin {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171; /* Sáng hơn */
 }
 
-.action-btn {
-  display: inline-flex;
-  align-items: center;
+.status-active {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #34d399; /* Sáng hơn */
+}
+
+.status-blocked {
+  background-color: rgba(249, 115, 22, 0.15); /* Chuyển sang màu cam cho đỡ nặng */
+  color: #fb923c;
+}
+
+.ban-until-text {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+}
+
+
+td:last-child {
+    align-items: center;
+}
+
+.action-btn, .ban-select, .role-select {
   padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
-  font-family: 'Sora', sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Manrope', sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
   cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0; /* Ghi đè */
 }
 
-.lock-btn {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid #ef4444;
-}
-
-.lock-btn:hover {
-  background: #ef4444;
+.action-btn:hover, .ban-select:hover, .role-select:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
 }
 
 .unlock-btn {
-  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
   color: #22c55e;
-  border: 1px solid #22c55e;
 }
 
 .unlock-btn:hover {
@@ -470,29 +525,11 @@ th {
   box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
 }
 
-.lock-btn i,
 .unlock-btn i {
   margin-right: 0.5rem;
 }
 
-.ban-select,
-.role-select {
-  margin-left: 1rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #22c55e;
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.ban-select:hover,
-.role-select:hover {
-  background: rgba(34, 197, 94, 0.1);
-}
-
+/* --- Pagination --- */
 .pagination {
   display: flex;
   justify-content: center;
@@ -500,14 +537,15 @@ th {
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 2px solid rgba(34, 197, 94, 0.3);
+  border-top: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .pagination-btn {
   display: flex;
   align-items: center;
+  gap: 0.5rem; /* Khoảng cách giữa icon và chữ */
   padding: 0.75rem 1.5rem;
-  background: rgba(34, 197, 94, 0.15);
+  background: transparent;
   color: #22c55e;
   border: 1px solid #22c55e;
   border-radius: 0.5rem;
@@ -518,19 +556,17 @@ th {
   transition: all 0.3s ease;
 }
 
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .pagination-btn:hover:not(:disabled) {
   background: #22c55e;
   color: #ffffff;
   box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
 }
 
-.pagination-btn i {
-  margin: 0 0.5rem;
+.pagination-btn:disabled {
+  background: rgba(55, 65, 81, 0.2);
+  border-color: rgba(55, 65, 81, 0.4);
+  color: rgba(156, 163, 175, 0.5);
+  cursor: not-allowed;
 }
 
 .pagination-info {
@@ -539,111 +575,52 @@ th {
   color: #ffffff;
 }
 
-.loading {
-  text-align: center;
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.2rem;
-  color: #22c55e;
-  padding: 2rem;
+/* --- Loading State --- */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 4px solid rgba(34, 197, 94, 0.2);
+  border-top-color: #22c55e;
+  animation: spin 1s linear infinite;
+}
+
+/* --- Animations --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- Responsive --- */
 @media (max-width: 768px) {
-  .user-management-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .user-management-card {
-    padding: 1.5rem;
-  }
-
-  .page-title {
-    font-size: 1.75rem;
-  }
-
-  .filter-search {
-    flex-direction: column;
-  }
-
-  th,
-  td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .role-badge {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .action-btn,
-  .ban-select,
-  .role-select {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .pagination {
-    gap: 0.75rem;
-  }
-
-  .pagination-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .pagination-info {
-    font-size: 0.9rem;
-  }
+  .user-management-card { padding: 1.5rem; }
+  .page-title { font-size: 1.75rem; }
+  .filter-search { flex-direction: column; }
+  th, td { padding: 0.75rem; font-size: 0.9rem; }
 }
 
 @media (max-width: 480px) {
-  .user-management-card {
-    padding: 1rem;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  th,
-  td {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .role-badge {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
-  }
-
-  .action-btn,
-  .ban-select,
-  .role-select {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
-    margin: 0.5rem 0;
-  }
-
-  .pagination {
+  .user-management-card { padding: 1.5rem 1rem; }
+  .page-title { font-size: 1.5rem; }
+  td:last-child {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
-
-  .pagination-btn {
+  .ban-select, .role-select, .action-btn {
     width: 100%;
-    max-width: 200px;
     text-align: center;
   }
+  .pagination { flex-direction: column; }
 }
 </style>

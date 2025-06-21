@@ -35,7 +35,7 @@ const StoryModel = {
     return result.insertId;
   },
 
-  // Lấy tất cả truyện (có thể thêm phân trang sau)
+  // Lấy tất cả truyện
   getAll: async () => {
     const [rows] = await db.query(`SELECT * FROM truyen_new`);
     return rows;
@@ -43,9 +43,7 @@ const StoryModel = {
 
   // Lấy truyện theo ID
   getById: async (id) => {
-    const [rows] = await db.query(`SELECT * FROM truyen_new WHERE id = ?`, [
-      id,
-    ]);
+    const [rows] = await db.query(`SELECT * FROM truyen_new WHERE id = ?`, [id]);
     return rows[0];
   },
 
@@ -83,6 +81,7 @@ const StoryModel = {
     );
     return result.affectedRows;
   },
+
   // Lấy danh sách truyện có trạng thái 'cho_duyet'
   getPendingApproval: async () => {
     const [rows] = await db.query(
@@ -118,6 +117,14 @@ const StoryModel = {
       id,
     ]);
     return result.affectedRows;
+  },
+
+  // ✅ Lấy toàn bộ thể loại từ bảng theloai_new
+  getAllGenres: async () => {
+    const [rows] = await db.query(
+      `SELECT id_theloai, ten_theloai FROM theloai_new`
+    );
+    return rows;
   },
 };
 

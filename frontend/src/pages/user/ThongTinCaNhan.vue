@@ -90,6 +90,13 @@
           >
             <i class="fas fa-book"></i> Đăng Truyện
           </router-link>
+                    <router-link
+            v-if="user?.role === 'admin'"
+            to="/quan-ly-nguoi-dung"
+            class="profile-nav-tab"
+          >
+            <i class="fas fa-book"></i> Quản lý người dùng
+          </router-link>
         </div>
       </section>
     </main>

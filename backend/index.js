@@ -38,6 +38,7 @@ const chapterRoutes = require("./routes/chapter.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const fileRoutes = require("./routes/file.routes");
 const userRoutes = require('./routes/user.routes');
+const genreRoutes = require("./routes/genre.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/truyen", storyRoutes);
@@ -45,6 +46,7 @@ app.use("/api/chuong", chapterRoutes);
 app.use("/api/upload-truyen", uploadRoutes);
 app.use("/api/upload-files", fileRoutes);
 app.use('/api/v1', userRoutes);
+app.use("/api/v1/genres", genreRoutes);
 
 // Test route
 app.get("/", (req, res) => {

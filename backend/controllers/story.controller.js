@@ -185,19 +185,24 @@ const createStory = async (req, res) => {
       link_nguon,
       muc_tieu,
       doi_tuong_doc_gia,
-      the_loai, // Giả sử bạn gửi thể loại dưới dạng array hoặc string
+      the_loai,
       chuong_mau_tieu_de,
       chuong_mau_noi_dung,
     } = req.body;
 
+    // Validation đơn giản
+    if (!ten_truyen || !mo_ta) {
+      return res.status(400).json({ message: "Tên truyện và mô tả không được để trống." });
+    }
+
     const user_id = req.user.id;
     const anh_bia = req.file ? `/uploads_img/bia_truyen/${req.file.filename}` : null;
     const thoi_gian_cap_nhat = new Date();
-    const trang_thai_kiem_duyet = "cho_duyet"; // Mặc định là chờ duyệt
+    const trang_thai_kiem_duyet = "cho_duyet";
 
     const storyData = {
       ten_truyen,
-      tac_gia: req.user.full_name, // Lấy tên tác giả từ thông tin user
+      tac_gia: req.user.full_name,
       mo_ta,
       trang_thai,
       tinh_trang,
@@ -210,8 +215,7 @@ const createStory = async (req, res) => {
       anh_bia,
       trang_thai_kiem_duyet,
       user_id,
-      the_loai, // Thêm thể loại vào đây
-      // Các trường khác có thể để giá trị mặc định hoặc null
+      the_loai,
       ghi_chu_admin: null,
       danh_gia_noi_dung: null,
       danh_gia_van_phong: null,
@@ -220,15 +224,22 @@ const createStory = async (req, res) => {
 
     const storyId = await StoryModel.create(storyData);
 
-    // Nếu có chương mẫu, tạo chương mẫu liên kết với truyện vừa tạo
+    // Tạo chương mẫu nếu có
     if (chuong_mau_tieu_de && chuong_mau_noi_dung) {
-      const ChapterModel = require("../models/chapter.model"); // Import ở đây để tránh circular dependency
-      await ChapterModel.createChapter({
-        truyen_id: storyId,
-        so_chuong: 1, // Chương mẫu có số chương là 1
-        tieu_de: chuong_mau_tieu_de,
-        noi_dung: chuong_mau_noi_dung,
-      });
+      const ChapterModel = require("../models/chapter.model");
+      try {
+        await ChapterModel.createChapter({
+          truyen_id: storyId,
+          so_chuong: 1,
+          tieu_de: chuong_mau_tieu_de,
+          noi_dung: chuong_mau_noi_dung,
+        });
+      } catch (chapterErr) {
+        // Rollback nếu tạo chương lỗi
+        console.error("Lỗi khi tạo chương mẫu, rollback:", chapterErr);
+        await StoryModel.delete(storyId);
+        return res.status(500).json({ message: "Tạo chương mẫu thất bại, truyện đã bị xóa." });
+      }
     }
 
     res.status(201).json({ message: "Đăng truyện thành công và đang chờ duyệt!", storyId });

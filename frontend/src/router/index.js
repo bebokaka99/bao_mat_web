@@ -1,4 +1,3 @@
-// frontend/src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../pages/home/Home.vue';
 import TruyenChuPage from '../pages/truyenchu/TruyenChu.vue';
@@ -6,6 +5,7 @@ import DangNhap from '../pages/auth/DangNhap.vue';
 import DangKy from '../pages/auth/DangKy.vue';
 import QuanLyNguoiDung from '../pages/user/QuanLyNguoiDung.vue';
 import { useAuthStore } from '@/stores/auth';
+import DangTruyen from '@/pages/user/DangTruyen.vue';
 
 const routes = [
   {
@@ -95,10 +95,19 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/user/quan-ly-nguoi-dung',
+    path: '/quan-ly-nguoi-dung',
     name: 'QuanLyNguoiDung',
     component: QuanLyNguoiDung,
     meta: { requiresAuth: true, adminOnly: true },
+  },
+  {
+    path: '/dang-truyen',
+    name: 'DangTruyen',
+    component: DangTruyen,
+    meta: {
+      requiresAuth: true,
+      roles: ['author', 'admin'],
+    },
   },
 ];
 
@@ -112,18 +121,21 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   authStore.initialize();
 
-  // Ngăn không cho người đã login vào trang /dang-nhap, /dang-ky
   if (to.meta.guestOnly && authStore.token) {
     alert('Bạn đã đăng nhập rồi!');
     return next({ name: 'TruyenChu' });
   }
 
-  // Bảo vệ các route cần đăng nhập
   if (to.meta.requiresAuth && !authStore.token) {
     return next({ name: 'DangNhap' });
   }
 
-  // Bảo vệ route chỉ dành cho Admin
+  // Kiểm tra quyền hạn nếu có quy định roles
+  if (to.meta.roles && !to.meta.roles.includes(authStore.user?.role)) {
+    alert('Bạn không có quyền truy cập!');
+    return next({ name: 'Home' });
+  }
+
   if (to.meta.adminOnly && authStore.user?.role !== 'admin') {
     alert('Bạn không có quyền truy cập!');
     return next({ name: 'Home' });
