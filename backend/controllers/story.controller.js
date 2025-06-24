@@ -42,7 +42,6 @@ const updateStory = async (req, res) => {
         .json({ message: "Không tìm thấy truyện để cập nhật" });
     }
 
-    // Phân quyền: admin hoặc author chính chủ
     const user = req.user;
     if (user.role !== "admin" && user.id !== existingStory.user_id) {
       return res
@@ -68,7 +67,6 @@ const deleteStory = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy truyện để xoá" });
     }
 
-    // Phân quyền: admin hoặc author chính chủ
     const user = req.user;
     if (user.role !== "admin" && user.id !== existingStory.user_id) {
       return res
@@ -101,21 +99,30 @@ const approveOrRejectStory = async (req, res) => {
   const { status, adminNote } = req.body;
   const storyId = req.params.id;
 
-  if (!status || !adminNote) {
-    return res
-      .status(400)
-      .json({ message: "Vui lòng cung cấp trạng thái và ghi chú" });
+  // Logic validation
+  if (!status) {
+    return res.status(400).json({ message: "Vui lòng cung cấp trạng thái." });
+  }
+  if (status === 'tu_choi' && !adminNote) {
+    return res.status(400).json({ message: "Vui lòng cung cấp ghi chú khi từ chối truyện." });
+  }
+  
+  // SỬA LỖI TẠI ĐÂY: Đổi 'da_duyet' thành 'duyet' để khớp với giá trị ENUM trong database
+  if (!['duyet', 'tu_choi'].includes(status)) {
+    return res.status(400).json({ message: "Trạng thái không hợp lệ." });
   }
 
   try {
     const result = await StoryModel.updateApprovalStatus(
       storyId,
       status,
-      adminNote
+      adminNote || '' 
     );
+    
     if (result > 0) {
+      // SỬA LỖI: Đồng bộ thông báo thành công với giá trị 'duyet'
       res.status(200).json({
-        message: `Truyện đã ${status === "duyet" ? "duyệt" : "từ chối"}`,
+        message: `Truyện đã được ${status === "duyet" ? "duyệt" : "từ chối"}`,
       });
     } else {
       res.status(404).json({ message: "Không tìm thấy truyện để cập nhật" });
@@ -124,26 +131,21 @@ const approveOrRejectStory = async (req, res) => {
     console.error("Lỗi khi duyệt / từ chối truyện:", err);
     res
       .status(500)
-      .json({ message: "Lỗi khi duyệt / từ chối truyện", error: err.message });
+      .json({ message: "Lỗi server khi duyệt / từ chối truyện", error: err.message });
   }
 };
 
 // Tác giả xem truyện của chính mình
 const getMyStories = async (req, res) => {
-  const userId = req.user.id; // Lấy userId từ JWT payload
-
-  console.log("User ID:", userId); // Thêm log để kiểm tra giá trị của userId
+  const userId = req.user.id; 
 
   try {
-    // Lấy truyện của tác giả từ model
     const stories = await StoryModel.getByAuthor(userId);
 
-    // Kiểm tra nếu không có truyện nào
     if (!stories || stories.length === 0) {
       return res.status(200).json({ message: "Bạn chưa đăng truyện nào." });
     }
 
-    // Trả về danh sách truyện của tác giả
     res.json(stories);
   } catch (err) {
     console.error("Lỗi khi lấy truyện cá nhân:", err);
@@ -190,7 +192,6 @@ const createStory = async (req, res) => {
       chuong_mau_noi_dung,
     } = req.body;
 
-    // Validation đơn giản
     if (!ten_truyen || !mo_ta) {
       return res.status(400).json({ message: "Tên truyện và mô tả không được để trống." });
     }
@@ -224,7 +225,6 @@ const createStory = async (req, res) => {
 
     const storyId = await StoryModel.create(storyData);
 
-    // Tạo chương mẫu nếu có
     if (chuong_mau_tieu_de && chuong_mau_noi_dung) {
       const ChapterModel = require("../models/chapter.model");
       try {
@@ -235,7 +235,6 @@ const createStory = async (req, res) => {
           noi_dung: chuong_mau_noi_dung,
         });
       } catch (chapterErr) {
-        // Rollback nếu tạo chương lỗi
         console.error("Lỗi khi tạo chương mẫu, rollback:", chapterErr);
         await StoryModel.delete(storyId);
         return res.status(500).json({ message: "Tạo chương mẫu thất bại, truyện đã bị xóa." });

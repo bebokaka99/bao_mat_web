@@ -2,20 +2,12 @@ const express = require("express");
 const router = express.Router();
 const storyController = require("../controllers/story.controller");
 const { authenticateToken, authorizeRoles } = require("../middleware/auth");
-console.log("storyController:", storyController);
-const uploadStoryCover = require("../middleware/upload_story"); 
+const uploadStoryCover = require("../middleware/upload_story");
 
-// Lấy tất cả truyện
+// Lấy tất cả truyện (Public)
 router.get("/", storyController.getAllStories);
 
-// Admin xem truyện theo userId
-router.get(
-  "/theo-user/:userId",
-  authenticateToken,
-  authorizeRoles("admin"),
-  storyController.getStoriesByUserId
-);
-// tác giả xem truyện của mình
+// Tác giả xem truyện của mình (Author, Admin)
 router.get(
   "/truyen-cua-toi",
   authenticateToken,
@@ -23,29 +15,41 @@ router.get(
   storyController.getMyStories
 );
 
-// Lấy truyện theo ID
-router.get("/:id", storyController.getStoryById);
-
-// Cập nhật truyện
-router.put(
-  "/:id",
-  authenticateToken,
-  authorizeRoles("admin", "author"),
-  storyController.updateStory
-);
-// Xoá truyện
-router.delete(
-  "/:id",
-  authenticateToken,
-  authorizeRoles("admin", "author"),
-  storyController.deleteStory
-);
 // Lấy danh sách truyện chờ duyệt (Admin)
 router.get(
   "/cho-duyet",
   authenticateToken,
   authorizeRoles("admin"),
   storyController.getPendingApproval
+);
+
+// Admin xem truyện theo userId (Admin)
+router.get(
+  "/theo-user/:userId",
+  authenticateToken,
+  authorizeRoles("admin"),
+  storyController.getStoriesByUserId
+);
+
+// Lấy truyện theo ID (Public)
+// *Lưu ý: Route này phải nằm sau các route tĩnh khác để tránh xung đột*
+router.get("/:id", storyController.getStoryById);
+
+// Tạo truyện mới (Author, Admin)
+router.post(
+  "/",
+  authenticateToken,
+  authorizeRoles("admin", "author"),
+  uploadStoryCover.single("anh_bia"),
+  storyController.createStory
+);
+
+// Cập nhật truyện (Author, Admin)
+router.put(
+  "/:id",
+  authenticateToken,
+  authorizeRoles("admin", "author"),
+  storyController.updateStory
 );
 
 // Duyệt hoặc từ chối truyện (Admin)
@@ -56,6 +60,12 @@ router.put(
   storyController.approveOrRejectStory
 );
 
-console.log("Story routes loaded");
+// Xoá truyện (Author, Admin)
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRoles("admin", "author"),
+  storyController.deleteStory
+);
 
 module.exports = router;

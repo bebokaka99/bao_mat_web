@@ -459,9 +459,10 @@ body {
 
 /* Thông báo lỗi */
 .loi {
-  color: #d32f2f; /* Đỏ cho lỗi */
+  color: #d32f2f; 
   font-size: 0.8rem;
   margin-top: 4px;
+  margin-bottom: 15px;
   display: block;
   text-align: center;
 }

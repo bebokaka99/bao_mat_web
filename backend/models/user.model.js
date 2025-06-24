@@ -71,22 +71,22 @@ const UserModel = {
   },
 
   lockUser: async (id, banUntil = null) => {
-    console.log('lockUser query:', { id, status: 'blocked', banUntil }); // Debug
+    console.log('lockUser query:', { id, status: 'blocked', banUntil });
     const [result] = await db.query(
       'UPDATE users_new SET status = ?, ban_until = ? WHERE id = ?',
       ['blocked', banUntil, id]
     );
-    console.log('lockUser result:', result); // Debug
+    console.log('lockUser result:', result); 
     return result.affectedRows;
   },
 
   unlockUser: async (id) => {
-    console.log('unlockUser query:', { id, status: 'active' }); // Debug
+    console.log('unlockUser query:', { id, status: 'active' });
     const [result] = await db.query(
       'UPDATE users_new SET status = ?, ban_until = ? WHERE id = ?',
       ['active', null, id]
     );
-    console.log('unlockUser result:', result); // Debug
+    console.log('unlockUser result:', result); 
     return result.affectedRows;
   },
 

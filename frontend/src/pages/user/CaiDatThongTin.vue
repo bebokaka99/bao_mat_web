@@ -1,4 +1,3 @@
-<!-- frontend/src/pages/user/CaiDatThongTin.vue -->
 <template>
   <div class="settings-page">
     <AppHeader />
@@ -6,7 +5,6 @@
       <section class="settings-card">
         <h1 class="settings-title">Cài Đặt Thông Tin</h1>
         <form @submit.prevent="handleSubmit" class="settings-form">
-          <!-- Avatar -->
           <div class="form-group avatar-group">
             <label class="form-label">Ảnh đại diện</label>
             <div class="avatar-preview">
@@ -30,7 +28,6 @@
             <span v-if="errors.avatar" class="error">{{ errors.avatar }}</span>
           </div>
 
-          <!-- Full Name -->
           <div class="form-group">
             <label class="form-label">Họ và tên</label>
             <input
@@ -43,7 +40,6 @@
             <span v-if="errors.full_name" class="error">{{ errors.full_name }}</span>
           </div>
 
-          <!-- Email -->
           <div class="form-group">
             <label class="form-label">Email</label>
             <input
@@ -56,7 +52,6 @@
             <span v-if="errors.email" class="error">{{ errors.email }}</span>
           </div>
 
-          <!-- Phone -->
           <div class="form-group">
             <label class="form-label">Số điện thoại</label>
             <input
@@ -69,22 +64,17 @@
             <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
           </div>
 
-          <!-- Gender -->
           <div class="form-group">
             <label class="form-label">Giới tính</label>
-            <select
+            <CustomSelect
               v-model="form.gender"
-              class="form-input"
-              :class="{ 'is-invalid': errors.gender }"
-            >
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-              <option value="other">Khác</option>
-            </select>
+              :options="genderOptions"
+              :is-invalid="!!errors.gender"
+              placeholder="-- Chọn giới tính --"
+            />
             <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
           </div>
 
-          <!-- Change Password -->
           <div class="form-group">
             <label class="form-label">Mật khẩu hiện tại</label>
             <input
@@ -119,7 +109,6 @@
             <span v-if="errors.confirm_new_password" class="error">{{ errors.confirm_new_password }}</span>
           </div>
 
-          <!-- Agree Checkbox -->
           <div class="form-group agree-group">
             <label class="agree-label">
               <input
@@ -132,13 +121,12 @@
             <span v-if="errors.agree" class="error">{{ errors.agree }}</span>
           </div>
 
-          <!-- Submit Button -->
           <button type="submit" class="submit-btn">
             <i class="fas fa-save"></i> Lưu thay đổi
           </button>
         </form>
       </section>
-      <!-- Toast Container -->
+
       <div class="toast-container">
         <div
           v-for="(toast, index) in toasts"
@@ -159,10 +147,11 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { getMe, updateMe, changePassword } from '@/api/authApi';
 import AppHeader from '@/components/AppHeader.vue';
+import CustomSelect from '@/components/CustomSelect.vue';
 
 export default {
   name: 'CaiDatThongTin',
-  components: { AppHeader },
+  components: { AppHeader, CustomSelect },
   setup() {
     const router = useRouter();
     const authStore = useAuthStore();
@@ -177,12 +166,17 @@ export default {
       confirm_new_password: '',
       agree: false,
     });
-    const originalForm = ref({}); // Lưu dữ liệu gốc để so sánh
+    const originalForm = ref({});
     const avatarPreview = ref(null);
     const errors = ref({});
     const toasts = ref([]);
+    
+    const genderOptions = ref([
+        { value: 'male', label: 'Nam' },
+        { value: 'female', label: 'Nữ' },
+        { value: 'other', label: 'Khác' },
+    ]);
 
-    // Fetch user data
     onMounted(async () => {
       authStore.initialize();
       if (!authStore.token) {
@@ -204,7 +198,6 @@ export default {
           confirm_new_password: '',
           agree: false,
         };
-        // Lưu dữ liệu gốc
         originalForm.value = {
           full_name: response.user.full_name || '',
           email: response.user.email || '',
@@ -218,7 +211,6 @@ export default {
       }
     });
 
-    // Avatar handling
     const avatarUrl = computed(() => {
       const userAvatar = authStore.user?.avatar;
       return userAvatar && userAvatar !== '/uploads_img/avatar/default-avatar.jpg'
@@ -247,7 +239,6 @@ export default {
       }
     };
 
-    // Toast handling
     const addToast = (message, type) => {
       toasts.value.push({ message, type });
       setTimeout(() => {
@@ -259,7 +250,6 @@ export default {
       toasts.value.splice(index, 1);
     };
 
-    // Form validation
     const validateForm = () => {
       errors.value = {};
       let isValid = true;
@@ -327,7 +317,6 @@ export default {
       return isValid;
     };
 
-    // Check if profile has changed
     const hasProfileChanged = () => {
       return (
         form.value.full_name !== originalForm.value.full_name ||
@@ -338,12 +327,10 @@ export default {
       );
     };
 
-    // Form submission
     const handleSubmit = async () => {
       if (!validateForm()) return;
 
       try {
-        // Update profile if changed
         if (hasProfileChanged()) {
           const formData = new FormData();
           if (form.value.full_name !== originalForm.value.full_name)
@@ -361,7 +348,6 @@ export default {
             const updatedUser = await getMe(authStore.token);
             authStore.setUser(updatedUser.user);
             addToast('Cập nhật thông tin thành công!', 'success');
-            // Update originalForm
             originalForm.value = {
               full_name: form.value.full_name,
               email: form.value.email,
@@ -371,7 +357,6 @@ export default {
           }
         }
 
-        // Change password if provided
         if (form.value.current_password && form.value.new_password && form.value.confirm_new_password) {
           await changePassword(authStore.token, {
             current_password: form.value.current_password,
@@ -386,7 +371,6 @@ export default {
         router.push('/user/thong-tin-ca-nhan');
       } catch (error) {
         const message = error.response?.data?.message || error.message;
-        console.error('Submit error:', message); // Debug
         addToast(message, 'error');
         if (message.includes('Token') || message.includes('đăng nhập')) {
           authStore.logout();
@@ -405,17 +389,16 @@ export default {
       errors,
       toasts,
       removeToast,
+      genderOptions,
     };
   },
 };
 </script>
 
 <style scoped>
-/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Sora:wght@400;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-/* Page wrapper */
 .settings-page {
   min-height: 100vh;
   background: #1a1d29;
@@ -424,21 +407,18 @@ export default {
   overflow: hidden;
 }
 
-/* Header fix */
 .header {
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-/* Main container */
 .settings-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
 
-/* Settings card */
 .settings-card {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(15px);
@@ -455,7 +435,6 @@ export default {
   box-shadow: 0 0 35px rgba(34, 197, 94, 0.35);
 }
 
-/* Title */
 .settings-title {
   font-family: 'Manrope', sans-serif;
   font-size: 2.25rem;
@@ -465,14 +444,12 @@ export default {
   text-align: center;
 }
 
-/* Form */
 .settings-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Form group */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -507,7 +484,6 @@ export default {
   border-color: #ef4444;
 }
 
-/* Avatar group */
 .avatar-group {
   align-items: center;
   gap: 1rem;
@@ -550,7 +526,6 @@ export default {
   color: #ffffff;
 }
 
-/* Agree checkbox */
 .agree-group {
   display: flex;
   flex-direction: column;
@@ -572,14 +547,12 @@ export default {
   accent-color: #22c55e;
 }
 
-/* Error message */
 .error {
   color: #ef4444;
   font-family: 'Manrope', sans-serif;
   font-size: 0.85rem;
 }
 
-/* Submit button */
 .submit-btn {
   padding: 0.75rem 2rem;
   background: linear-gradient(90deg, #22c55e, #ffd700);
@@ -621,7 +594,6 @@ export default {
   margin-right: 0.5rem;
 }
 
-/* Toast */
 .toast-container {
   position: fixed;
   top: 20px;
@@ -661,7 +633,6 @@ export default {
   }
 }
 
-/* Animations */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -673,7 +644,6 @@ export default {
   }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .settings-container {
     padding: 1.5rem 1rem;

@@ -80,16 +80,13 @@ export default {
     },
     nextSlide() {
       this.currentIndex = (this.currentIndex + 1) % this.notifications.length;
-      console.log("Next slide, currentIndex:", this.currentIndex); // Debug
     },
     prevSlide() {
       this.currentIndex =
         (this.currentIndex - 1 + this.notifications.length) % this.notifications.length;
-      console.log("Prev slide, currentIndex:", this.currentIndex); // Debug
     },
     goToSlide(index) {
       this.currentIndex = index;
-      console.log("Go to slide, currentIndex:", this.currentIndex); // Debug
     },
   },
 };

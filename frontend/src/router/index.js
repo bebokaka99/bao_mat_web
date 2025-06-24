@@ -1,3 +1,4 @@
+//Frontend src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../pages/home/Home.vue';
 import TruyenChuPage from '../pages/truyenchu/TruyenChu.vue';
@@ -109,6 +110,13 @@ const routes = [
       roles: ['author', 'admin'],
     },
   },
+  {
+    path: '/admin/quan-ly-truyen',
+    name: 'AdminStoryManagement',
+    component: () => import('@/pages/admin/StoryManagement.vue'),
+    meta: { requiresAuth: true, adminOnly: true } 
+  },
+
 ];
 
 const router = createRouter({

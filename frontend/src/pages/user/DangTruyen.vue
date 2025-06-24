@@ -30,32 +30,38 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-tags icon"></i> Thể loại</label>
-            <select v-model="form.genre" class="form-input">
-              <option disabled value="">-- Chọn thể loại --</option>
-              <option v-for="tl in genres" :key="tl.id_theloai" :value="tl.id_theloai">
-                {{ tl.ten_theloai }}
-              </option>
-            </select>
-            <span v-if="errors.genre" class="error">{{ errors.genre }}</span>
+            <label class="form-label"><i class="fas fa-tags icon"></i> Thể loại (có thể chọn nhiều)</label>
+            <div class="genre-grid">
+              <label v-for="tl in genres" :key="tl.id_theloai" class="genre-label">
+                <input type="checkbox" :value="tl.id_theloai" v-model="form.genres" />
+                <span class="genre-checkmark">{{ tl.ten_theloai }}</span>
+              </label>
+            </div>
+            <span v-if="errors.genres" class="error">{{ errors.genres }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label"><i class="fas fa-check-circle icon"></i> Trạng thái truyện</label>
-            <select v-model="form.status" class="form-input">
-              <option disabled value="">-- Chọn trạng thái --</option>
-              <option value="Hoàn thành">Hoàn thành</option>
-              <option value="Đang tiến hành">Đang tiến hành</option>
-            </select>
+            <CustomSelect
+              v-model="form.status"
+              :options="[
+                { value: 'Hoàn thành', label: 'Hoàn thành' },
+                { value: 'Đang tiến hành', label: 'Đang tiến hành' }
+              ]"
+              placeholder="-- Chọn trạng thái --"
+            />
           </div>
 
           <div class="form-group">
             <label class="form-label"><i class="fas fa-edit icon"></i> Tình trạng viết</label>
-            <select v-model="form.writing_status" class="form-input">
-              <option disabled value="">-- Chọn tình trạng --</option>
-              <option value="Đang viết">Đang viết</option>
-              <option value="Tạm ngừng">Tạm ngừng</option>
-            </select>
+            <CustomSelect
+              v-model="form.writing_status"
+              :options="[
+                { value: 'Đang viết', label: 'Đang viết' },
+                { value: 'Tạm ngừng', label: 'Tạm ngừng' }
+              ]"
+              placeholder="-- Chọn tình trạng --"
+            />
           </div>
 
           <div class="form-group">
@@ -109,12 +115,13 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
+import CustomSelect from '@/components/CustomSelect.vue'; // <-- IMPORT COMPONENT MỚI
 import { useAuthStore } from '@/stores/auth';
 import { getAllGenres, createStory } from '@/api/story';
 
 export default {
   name: 'DangTruyen',
-  components: { AppHeader },
+  components: { AppHeader, CustomSelect }, // <-- ĐĂNG KÝ COMPONENT MỚI
   setup() {
     const router = useRouter();
     const authStore = useAuthStore();
@@ -123,9 +130,9 @@ export default {
       title: '',
       description: '',
       cover: null,
-      genre: '',
-      status: '',
-      writing_status: '',
+      genres: [], // <-- THAY ĐỔI: LƯU NHIỀU THỂ LOẠI
+      status: 'Đang tiến hành',
+      writing_status: 'Đang viết',
       sensitive: false,
       target: '',
       audience: '',
@@ -137,7 +144,7 @@ export default {
 
     const coverPreview = ref(null);
     const defaultCover = 'http://localhost:3000/uploads_img/truyen/default-cover.jpg';
-    const genres = ref([]);
+    const genres = ref([]); // <-- Đây là danh sách thể loại từ API
     const errors = ref({});
 
     onMounted(async () => {
@@ -164,11 +171,11 @@ export default {
     const validateForm = () => {
       errors.value = {};
       let ok = true;
-      if (!form.value.title) errors.value.title = 'Vui lòng nhập tên truyện', ok = false;
-      if (!form.value.description) errors.value.description = 'Vui lòng nhập mô tả', ok = false;
-      if (!form.value.cover) errors.value.cover = 'Vui lòng chọn ảnh bìa', ok = false;
-      if (!form.value.genre) errors.value.genre = 'Vui lòng chọn thể loại', ok = false;
-      if (!form.value.agree) errors.value.agree = 'Bạn chưa xác nhận', ok = false;
+      if (!form.value.title) { errors.value.title = 'Vui lòng nhập tên truyện'; ok = false; }
+      if (!form.value.description) { errors.value.description = 'Vui lòng nhập mô tả'; ok = false; }
+      if (!form.value.cover) { errors.value.cover = 'Vui lòng chọn ảnh bìa'; ok = false; }
+      if (form.value.genres.length === 0) { errors.value.genres = 'Vui lòng chọn ít nhất một thể loại'; ok = false; }
+      if (!form.value.agree) { errors.value.agree = 'Bạn chưa xác nhận'; ok = false; }
       return ok;
     };
 
@@ -179,7 +186,8 @@ export default {
         data.append('ten_truyen', form.value.title);
         data.append('mo_ta', form.value.description);
         data.append('anh_bia', form.value.cover);
-        data.append('the_loai', form.value.genre);
+        // THAY ĐỔI QUAN TRỌNG: Gửi mảng thể loại dưới dạng chuỗi JSON
+        data.append('the_loai', JSON.stringify(form.value.genres));
         data.append('trang_thai', form.value.status);
         data.append('trang_thai_viet', form.value.writing_status);
         data.append('yeu_to_nhay_cam', form.value.sensitive ? '1' : '0');
@@ -190,8 +198,8 @@ export default {
         data.append('chuong_mau_noi_dung', form.value.sample_content);
 
         await createStory(authStore.token, data);
-        alert('Đăng truyện thành công!');
-        router.push('/user/thong-tin-ca-nhan');
+        alert('Đăng truyện thành công và đang chờ duyệt!');
+        router.push('/user/thong-tin-ca-nhan'); // Hoặc trang quản lý truyện
       } catch (err) {
         alert(err.response?.data?.message || 'Lỗi khi đăng truyện');
       }
@@ -211,6 +219,7 @@ export default {
 </script>
 
 <style scoped>
+/* CSS CŨ CỦA BẠN */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
 .settings-page {
@@ -468,5 +477,50 @@ export default {
 
 .submit-btn i {
   font-size: 1.5rem;
+}
+
+/* === CSS MỚI CHO THỂ LOẠI === */
+.genre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #22c55e;
+}
+
+.genre-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.genre-label input[type="checkbox"] {
+  display: none; /* Ẩn checkbox mặc định */
+}
+
+.genre-checkmark {
+  padding: 0.5rem 1rem;
+  border: 1px solid #4b5563;
+  border-radius: 0.75rem;
+  color: #d1d5db;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.genre-label input[type="checkbox"]:checked + .genre-checkmark {
+  background-color: #22c55e;
+  border-color: #4ade80;
+  color: #1a1d29;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.genre-label:hover .genre-checkmark {
+  border-color: #22c55e;
 }
 </style>

@@ -41,7 +41,9 @@ const userRoutes = require('./routes/user.routes');
 const genreRoutes = require("./routes/genre.routes");
 
 app.use("/api/auth", authRoutes);
-app.use("/api/truyen", storyRoutes);
+// === DÒNG CODE ĐƯỢC SỬA LẠI NẰM Ở ĐÂY ===
+app.use("/api/v1/story", storyRoutes);
+// ======================================
 app.use("/api/chuong", chapterRoutes);
 app.use("/api/upload-truyen", uploadRoutes);
 app.use("/api/upload-files", fileRoutes);

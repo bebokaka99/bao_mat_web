@@ -16,15 +16,18 @@
               class="search-input"
             />
           </div>
-          <select v-model="filterRole" class="filter-select">
-            <option value="">Tất cả quyền</option>
-            <option v-for="role in roles" :value="role" :key="role">{{ role }}</option>
-          </select>
-          <select v-model="filterStatus" class="filter-select">
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Hoạt động</option>
-            <option value="blocked">Bị khóa</option>
-          </select>
+          <CustomSelect
+            v-model="filterRole"
+            :options="roleFilterOptions"
+            placeholder="Tất cả quyền"
+            class="filter-wrapper"
+          />
+          <CustomSelect
+            v-model="filterStatus"
+            :options="statusFilterOptions"
+            placeholder="Tất cả trạng thái"
+            class="filter-wrapper"
+          />
         </div>
 
         <div v-if="loading" class="loading-container">
@@ -77,21 +80,15 @@
                     đến {{ formatDate(user.ban_until) }}
                   </small>
                 </td>
-                <td>
-                  <select
+                <td class="actions-cell">
+                  <CustomSelect
                     v-if="user.status === 'active'"
-                    v-model="selectedBanDuration[user.id]"
-                    class="ban-select"
-                    @change="confirmLock(user.id, $event.target.value)"
-                  >
-                    <option value="" disabled selected>Chọn thời gian khóa</option>
-                    <option value="1">1 ngày</option>
-                    <option value="3">3 ngày</option>
-                    <option value="5">5 ngày</option>
-                    <option value="7">7 ngày</option>
-                    <option value="30">30 ngày</option>
-                    <option value="permanent">Vĩnh viễn</option>
-                  </select>
+                    :model-value="selectedBanDuration[user.id] || ''"
+                    @update:modelValue="newValue => confirmLock(user.id, newValue)"
+                    :options="banDurationOptions"
+                    placeholder="Khóa tài khoản"
+                    class="action-select"
+                  />
                   <button
                     v-if="user.status !== 'active'"
                     @click="confirmUnlock(user.id)"
@@ -99,15 +96,12 @@
                   >
                     <i class="fas fa-unlock"></i> Mở khóa
                   </button>
-                  <select
-                    :value="user.role"
-                    @change="confirmChangeRole(user.id, $event.target.value)"
-                    class="role-select"
-                  >
-                    <option v-for="role in roles" :value="role" :key="role">
-                      {{ role }}
-                    </option>
-                  </select>
+                  <CustomSelect
+                    :model-value="user.role"
+                    @update:modelValue="newRole => confirmChangeRole(user.id, newRole)"
+                    :options="userRoleOptions"
+                    class="action-select"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -142,10 +136,13 @@ import { useAuthStore } from '@/stores/auth';
 import userApi from '@/api/user.api';
 import { useRouter } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
+// [THÊM MỚI] Import component CustomSelect
+import CustomSelect from '@/components/CustomSelect.vue';
 
 export default {
   name: 'QuanLyNguoiDung',
-  components: { AppHeader },
+  // [THÊM MỚI] Đăng ký component CustomSelect
+  components: { AppHeader, CustomSelect },
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();
@@ -160,9 +157,42 @@ export default {
     const filterStatus = ref('');
     const selectedBanDuration = ref({});
 
+    // --- [THÊM MỚI] Dữ liệu cho các CustomSelect ---
+
+    // Dữ liệu cho bộ lọc Quyền
+    const roleFilterOptions = computed(() => [
+      { value: '', label: 'Tất cả quyền' },
+      ...roles.value.map(role => ({ value: role, label: role })),
+    ]);
+
+    // Dữ liệu cho bộ lọc Trạng thái
+    const statusFilterOptions = ref([
+      { value: '', label: 'Tất cả trạng thái' },
+      { value: 'active', label: 'Hoạt động' },
+      { value: 'blocked', label: 'Bị khóa' },
+    ]);
+
+    // Dữ liệu cho hành động Khóa tài khoản
+    const banDurationOptions = ref([
+      { value: '1', label: '1 ngày' },
+      { value: '3', label: '3 ngày' },
+      { value: '5', label: '5 ngày' },
+      { value: '7', label: '7 ngày' },
+      { value: '30', label: '30 ngày' },
+      { value: 'permanent', label: 'Vĩnh viễn' },
+    ]);
+    
+    // Dữ liệu cho hành động Đổi quyền
+    const userRoleOptions = computed(() =>
+      roles.value.map(role => ({ value: role, label: role }))
+    );
+
+    // --- Kết thúc phần thêm mới ---
+
     const totalPages = computed(() => Math.ceil(total.value / limit));
 
     const filteredUsers = computed(() => {
+      // Logic lọc không thay đổi
       return users.value.filter((user) => {
         const matchesSearch =
           user.username.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -174,8 +204,8 @@ export default {
     });
 
     onMounted(async () => {
+      // Logic không thay đổi
       authStore.initialize();
-      console.log('User role:', authStore.user?.role); // Debug
       if (authStore.user?.role !== 'admin') {
         alert('Bạn không có quyền truy cập!');
         router.push('/');
@@ -185,14 +215,13 @@ export default {
     });
 
     const fetchUsers = async () => {
+      // Logic không thay đổi
       loading.value = true;
       try {
         const response = await userApi.getUsers(page.value, limit);
-        console.log('API Response: Structure OK'); // Debug an toàn
         if (response?.data?.data) {
           users.value = response.data.data.users || [];
           total.value = response.data.data.total || 0;
-          console.log('Users data:', users.value.map(u => ({ id: u.id, status: u.status, ban_until: u.ban_until }))); // Debug an toàn
         } else {
           throw new Error('Cấu trúc response không đúng');
         }
@@ -207,14 +236,10 @@ export default {
     };
 
     const confirmLock = async (userId, duration) => {
-      if (duration === '') return;
+      // Logic không thay đổi
+      if (!duration) return; // Không làm gì nếu không chọn giá trị
       const durations = {
-        '1': 1,
-        '3': 3,
-        '5': 5,
-        '7': 7,
-        '30': 30,
-        permanent: null,
+        '1': 1, '3': 3, '5': 5, '7': 7, '30': 30, permanent: null,
       };
       const banUntil = duration !== 'permanent'
         ? new Date(Date.now() + durations[duration] * 24 * 60 * 60 * 1000).toISOString()
@@ -224,10 +249,9 @@ export default {
         : 'Bạn có chắc muốn khóa người dùng này vĩnh viễn?';
       if (confirm(message)) {
         try {
-          console.log('Calling lockUser:', { userId, banUntil }); // Debug
           await userApi.lockUser(userId, banUntil);
           alert('Khóa người dùng thành công!');
-          selectedBanDuration.value[userId] = '';
+          selectedBanDuration.value[userId] = ''; // Reset select
           fetchUsers();
         } catch (error) {
           console.error('Lock user error:', error);
@@ -237,9 +261,9 @@ export default {
     };
 
     const confirmUnlock = async (userId) => {
+      // Logic không thay đổi
       if (confirm('Bạn có chắc muốn mở khóa người dùng này?')) {
         try {
-          console.log('Calling unlockUser:', { userId }); // Debug
           await userApi.unlockUser(userId);
           alert('Mở khóa người dùng thành công!');
           fetchUsers();
@@ -251,6 +275,10 @@ export default {
     };
 
     const confirmChangeRole = async (userId, role) => {
+      // Logic không thay đổi
+      const originalUser = users.value.find(u => u.id === userId);
+      if (originalUser && originalUser.role === role) return; // Không làm gì nếu quyền không đổi
+
       if (confirm(`Bạn có chắc muốn đổi quyền thành ${role}?`)) {
         try {
           await userApi.updateRole(userId, role);
@@ -263,13 +291,10 @@ export default {
     };
 
     const formatDate = (date) => {
+      // Logic không thay đổi
       if (!date) return '';
       return new Date(date).toLocaleString('vi-VN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
       });
     };
 
@@ -293,6 +318,11 @@ export default {
       confirmUnlock,
       confirmChangeRole,
       formatDate,
+      // [THÊM MỚI] Return các biến options để dùng trong template
+      roleFilterOptions,
+      statusFilterOptions,
+      banDurationOptions,
+      userRoleOptions,
     };
   },
 };
@@ -309,21 +339,21 @@ export default {
   background: var(--bg-color, #1a1d29);
   color: var(--text-color, #ffffff);
   position: relative;
-  overflow-x: hidden; /* Tránh scroll ngang không mong muốn */
+  overflow-x: hidden;
 }
 
 .user-management-container {
-  max-width: 1200px; /* Tăng max-width cho màn hình lớn */
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
 
 .user-management-card {
-  background: rgba(26, 29, 41, 0.7); /* Thêm nền nhẹ */
+  background: rgba(26, 29, 41, 0.7);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(34, 197, 94, 0.4); /* Viền mỏng, tinh tế hơn */
+  border: 1px solid rgba(34, 197, 94, 0.4);
   border-radius: 1rem;
-  padding: 3rem; /* Tăng không gian bên trong */
+  padding: 3rem;
   box-shadow: 0 0 25px rgba(34, 197, 94, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -337,7 +367,7 @@ export default {
   font-family: 'Manrope', sans-serif;
   font-size: 2.25rem;
   font-weight: 700;
-  margin-bottom: 2.5rem; /* Tăng khoảng cách */
+  margin-bottom: 2.5rem;
   text-align: center;
   animation: fade-in 0.8s ease-in;
 }
@@ -348,12 +378,18 @@ export default {
   flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  align-items: center; /* Căn chỉnh các item filter */
 }
 
 .search-wrapper {
   flex: 1;
   position: relative;
   min-width: 250px;
+}
+
+/* [THÊM MỚI] Wrapper cho custom select để kiểm soát kích thước */
+.filter-wrapper {
+  width: 200px; /* Độ rộng cố định cho filter */
 }
 
 .search-icon {
@@ -367,46 +403,35 @@ export default {
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #22c55e;
-  border-radius: 0.5rem;
+  padding: 1rem; /* Điều chỉnh padding cho phù hợp với CustomSelect */
+  border-radius: 1rem; /* Giống CustomSelect */
+  background: rgba(255, 255, 255, 0.08); /* Giống CustomSelect */
+  border: 1px solid #22c55e; /* Giống CustomSelect */
   color: #ffffff;
   font-family: 'Manrope', sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem; /* Giống CustomSelect */
   transition: all 0.3s ease;
+  box-shadow: inset 0 0 5px rgba(34, 197, 94, 0.2); /* Giống CustomSelect */
+  padding-left: 3.5rem; /* Tăng padding để không che icon */
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
 }
 
 .search-input:focus + .search-icon {
     color: #34d399;
 }
 
-.filter-select {
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #22c55e;
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus,
-.filter-select:focus,
-.ban-select:focus,
-.role-select:focus {
-  outline: none;
-  border-color: #34d399; /* Màu xanh lá sáng hơn */
-  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
-  background: rgba(255, 255, 255, 0.08);
-}
-
+/* [XÓA BỎ] Các style cho .filter-select, .ban-select, .role-select cũ đã được xóa đi
+   vì CustomSelect đã tự quản lý style của nó. */
 
 /* --- User Table --- */
 .user-table {
@@ -449,7 +474,7 @@ th {
   display: inline-flex;
   align-items: center;
   padding: 0.4rem 0.9rem;
-  border-radius: 999px; /* Pill shape */
+  border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -460,26 +485,26 @@ th {
 
 .role-user {
   background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa; /* Sáng hơn */
+  color: #60a5fa;
 }
 
 .role-author {
   background: rgba(234, 179, 8, 0.15);
-  color: #facc15; /* Sáng hơn */
+  color: #facc15;
 }
 
 .role-admin {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171; /* Sáng hơn */
+  color: #f87171;
 }
 
 .status-active {
   background-color: rgba(34, 197, 94, 0.15);
-  color: #34d399; /* Sáng hơn */
+  color: #34d399;
 }
 
 .status-blocked {
-  background-color: rgba(249, 115, 22, 0.15); /* Chuyển sang màu cam cho đỡ nặng */
+  background-color: rgba(249, 115, 22, 0.15);
   color: #fb923c;
 }
 
@@ -490,25 +515,29 @@ th {
     margin-top: 4px;
 }
 
-
-td:last-child {
-    align-items: center;
+.actions-cell {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-.action-btn, .ban-select, .role-select {
-  padding: 0.5rem 1rem;
+.action-select {
+  width: 150px; /* Set width for action selects */
+}
+
+.action-btn {
+  padding: 0.9rem 1rem; /* Chỉnh lại padding cho cân đối */
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
+  border-radius: 1rem; /* Chỉnh lại border-radius */
   color: rgba(255, 255, 255, 0.8);
   font-family: 'Manrope', sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-left: 0; /* Ghi đè */
 }
 
-.action-btn:hover, .ban-select:hover, .role-select:hover {
+.action-btn:hover {
   background: rgba(34, 197, 94, 0.1);
   border-color: #22c55e;
   color: #ffffff;
@@ -543,7 +572,7 @@ td:last-child {
 .pagination-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* Khoảng cách giữa icon và chữ */
+  gap: 0.5rem; 
   padding: 0.75rem 1.5rem;
   background: transparent;
   color: #22c55e;
@@ -606,21 +635,17 @@ td:last-child {
 @media (max-width: 768px) {
   .user-management-card { padding: 1.5rem; }
   .page-title { font-size: 1.75rem; }
-  .filter-search { flex-direction: column; }
+  .filter-search { flex-direction: column; align-items: stretch;}
+  .filter-wrapper { width: 100%; }
   th, td { padding: 0.75rem; font-size: 0.9rem; }
+  .actions-cell { flex-direction: column; align-items: stretch; }
+  .action-select { width: 100%; }
 }
 
 @media (max-width: 480px) {
   .user-management-card { padding: 1.5rem 1rem; }
   .page-title { font-size: 1.5rem; }
-  td:last-child {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .ban-select, .role-select, .action-btn {
-    width: 100%;
-    text-align: center;
-  }
   .pagination { flex-direction: column; }
 }
+
 </style>
