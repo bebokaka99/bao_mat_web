@@ -158,4 +158,4 @@ truyenviethay/
 
 ---
 
-> 📩 Nếu bạn muốn đóng góp, mở PR hoặc liên hệ trực tiếp với mình qua email hoặc issue trên repo nhé!
+> 📩 
