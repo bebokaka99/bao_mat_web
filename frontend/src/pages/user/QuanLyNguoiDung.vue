@@ -136,12 +136,10 @@ import { useAuthStore } from '@/stores/auth';
 import userApi from '@/api/user.api';
 import { useRouter } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
-// [THÊM MỚI] Import component CustomSelect
 import CustomSelect from '@/components/CustomSelect.vue';
 
 export default {
   name: 'QuanLyNguoiDung',
-  // [THÊM MỚI] Đăng ký component CustomSelect
   components: { AppHeader, CustomSelect },
   setup() {
     const authStore = useAuthStore();
@@ -156,8 +154,6 @@ export default {
     const filterRole = ref('');
     const filterStatus = ref('');
     const selectedBanDuration = ref({});
-
-    // --- [THÊM MỚI] Dữ liệu cho các CustomSelect ---
 
     // Dữ liệu cho bộ lọc Quyền
     const roleFilterOptions = computed(() => [
@@ -237,7 +233,7 @@ export default {
 
     const confirmLock = async (userId, duration) => {
       // Logic không thay đổi
-      if (!duration) return; // Không làm gì nếu không chọn giá trị
+      if (!duration) return; 
       const durations = {
         '1': 1, '3': 3, '5': 5, '7': 7, '30': 30, permanent: null,
       };
@@ -318,7 +314,6 @@ export default {
       confirmUnlock,
       confirmChangeRole,
       formatDate,
-      // [THÊM MỚI] Return các biến options để dùng trong template
       roleFilterOptions,
       statusFilterOptions,
       banDurationOptions,
@@ -378,7 +373,7 @@ export default {
   flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 2rem;
-  align-items: center; /* Căn chỉnh các item filter */
+  align-items: center; 
 }
 
 .search-wrapper {
@@ -387,9 +382,8 @@ export default {
   min-width: 250px;
 }
 
-/* [THÊM MỚI] Wrapper cho custom select để kiểm soát kích thước */
 .filter-wrapper {
-  width: 200px; /* Độ rộng cố định cho filter */
+  width: 200px; 
 }
 
 .search-icon {
@@ -403,16 +397,16 @@ export default {
 
 .search-input {
   width: 100%;
-  padding: 1rem; /* Điều chỉnh padding cho phù hợp với CustomSelect */
-  border-radius: 1rem; /* Giống CustomSelect */
-  background: rgba(255, 255, 255, 0.08); /* Giống CustomSelect */
-  border: 1px solid #22c55e; /* Giống CustomSelect */
+  padding: 1rem; 
+  border-radius: 1rem; 
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #22c55e; 
   color: #ffffff;
   font-family: 'Manrope', sans-serif;
-  font-size: 1rem; /* Giống CustomSelect */
+  font-size: 1rem; 
   transition: all 0.3s ease;
-  box-shadow: inset 0 0 5px rgba(34, 197, 94, 0.2); /* Giống CustomSelect */
-  padding-left: 3.5rem; /* Tăng padding để không che icon */
+  box-shadow: inset 0 0 5px rgba(34, 197, 94, 0.2); 
+  padding-left: 3.5rem;
 }
 
 .search-input::placeholder {
@@ -429,9 +423,6 @@ export default {
 .search-input:focus + .search-icon {
     color: #34d399;
 }
-
-/* [XÓA BỎ] Các style cho .filter-select, .ban-select, .role-select cũ đã được xóa đi
-   vì CustomSelect đã tự quản lý style của nó. */
 
 /* --- User Table --- */
 .user-table {
@@ -522,14 +513,14 @@ th {
 }
 
 .action-select {
-  width: 150px; /* Set width for action selects */
+  width: 150px;
 }
 
 .action-btn {
-  padding: 0.9rem 1rem; /* Chỉnh lại padding cho cân đối */
+  padding: 0.9rem 1rem; 
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1rem; /* Chỉnh lại border-radius */
+  border-radius: 1rem; 
   color: rgba(255, 255, 255, 0.8);
   font-family: 'Manrope', sans-serif;
   font-size: 1rem;

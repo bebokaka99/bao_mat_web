@@ -11,12 +11,7 @@
         <div class="profile-header">
           <!-- Avatar -->
           <div class="profile-avatar-wrapper">
-            <img
-              :src="avatarUrl"
-              alt="User Avatar"
-              class="profile-avatar"
-              @error="handleAvatarError"
-            />
+            <img :src="avatarUrl" alt="User Avatar" class="profile-avatar" @error="handleAvatarError" />
           </div>
 
           <!-- User info -->
@@ -51,21 +46,16 @@
           <div class="detail-row">
             <i class="fas fa-user-tag detail-icon"></i>
             <span class="detail-label">Vai trò</span>
-            <span
-              class="detail-value role-badge"
-              :class="{
-                'role-user': user?.role === 'user',
-                'role-author': user?.role === 'author',
-                'role-admin': user?.role === 'admin',
-              }"
-            >
-              <i
-                :class="{
-                  'fas fa-user': user?.role === 'user',
-                  'fas fa-pen': user?.role === 'author',
-                  'fas fa-crown': user?.role === 'admin',
-                }"
-              ></i>
+            <span class="detail-value role-badge" :class="{
+              'role-user': user?.role === 'user',
+              'role-author': user?.role === 'author',
+              'role-admin': user?.role === 'admin',
+            }">
+              <i :class="{
+                'fas fa-user': user?.role === 'user',
+                'fas fa-pen': user?.role === 'author',
+                'fas fa-crown': user?.role === 'admin',
+              }"></i>
               {{ user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User' }}
             </span>
           </div>
@@ -83,19 +73,15 @@
             <i class="fas fa-heart"></i> Truyện theo dõi
           </router-link>
           <!-- Nút Đăng Truyện - Chỉ hiển thị với author hoặc admin -->
-          <router-link
-            v-if="user?.role === 'author' || user?.role === 'admin'"
-            to="/dang-truyen"
-            class="profile-nav-tab"
-          >
+          <router-link v-if="user?.role === 'author' || user?.role === 'admin'" to="/dang-truyen"
+            class="profile-nav-tab">
             <i class="fas fa-book"></i> Đăng Truyện
           </router-link>
-                    <router-link
-            v-if="user?.role === 'admin'"
-            to="/quan-ly-nguoi-dung"
-            class="profile-nav-tab"
-          >
-            <i class="fas fa-book"></i> Quản lý người dùng
+          <router-link v-if="user?.role === 'admin'" to="/quan-ly-nguoi-dung" class="profile-nav-tab">
+            <i class="fa-solid fa-users"></i> Quản lý người dùng
+          </router-link>
+          <router-link v-if="user?.role === 'admin'" to="/admin/quan-ly-truyen" class="profile-nav-tab">
+            <i class="fa-solid fa-list-check"></i> Quản lý truyện
           </router-link>
         </div>
       </section>
@@ -416,6 +402,7 @@ export default {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -426,9 +413,11 @@ export default {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
   }
