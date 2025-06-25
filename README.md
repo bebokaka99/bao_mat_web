@@ -14,12 +14,12 @@ Tính năng nổi bật:
 
 ## 2. 🧰 Tech Stack
 
-| Layer      | Công nghệ sử dụng           |
-|------------|-----------------------------|
-| Backend    | Node.js + Express           |
-| Frontend   | Vue.js + Vite               |
-| Database   | MySQL                       |
-| Auth       | JWT (access & refresh token)|
+| Layer      | Công nghệ sử dụng            |
+|------------|------------------------------|
+| Backend    | Node.js + Express            |
+| Frontend   | Vue.js + Vite                |
+| Database   | MySQL                        |
+| Auth       | JWT (access & refresh token) |
 | Triển khai | VPS / Shared Hosting (cPanel)|
 
 ---
@@ -46,47 +46,50 @@ Frontend (Vue.js + Vite)
 ├── Call API Backend (Axios)
 ├── State management (Pinia)
 └── Responsive + Darkmode + SEO/SSR
-4. 🛡️ Phân quyền User
-Role	Quyền hạn
-Guest	Đọc truyện, tìm kiếm
-User	Bình luận, đánh giá, follow, lưu lịch sử đọc
-Author	Đăng truyện/chương (phải kiểm duyệt), quản lý truyện cá nhân
-Admin	Toàn quyền: duyệt truyện, quản lý user, content, cấp quyền, chỉnh sửa DB
+```
 
-5. ⚙️ Chức năng chính
-Đọc truyện
-Giao diện cuộn thân thiện
+---
 
-Darkmode
+## 4. 🛡️ Phân quyền User
 
-Lưu lịch sử đọc
+| Role   | Quyền hạn                                                                 |
+|--------|---------------------------------------------------------------------------|
+| Guest  | Đọc truyện, tìm kiếm                                                     |
+| User   | Bình luận, đánh giá, follow, lưu lịch sử đọc                             |
+| Author | Đăng truyện/chương (phải kiểm duyệt), quản lý truyện cá nhân            |
+| Admin  | Toàn quyền: duyệt truyện, quản lý user, content, cấp quyền, chỉnh sửa DB|
 
-Theo dõi/yêu thích truyện
+---
 
-Gợi ý truyện liên quan
+## 5. ⚙️ Chức năng chính
 
-Upload truyện
-Author đăng truyện & chương qua trình soạn thảo
+### Đọc truyện
+- Giao diện cuộn thân thiện
+- Darkmode
+- Lưu lịch sử đọc
+- Theo dõi/yêu thích truyện
+- Gợi ý truyện liên quan
 
-Admin kiểm duyệt nội dung
+### Upload truyện
+- Author đăng truyện & chương qua trình soạn thảo
+- Admin kiểm duyệt nội dung
+- Hỗ trợ định dạng truyện đẹp (TinyMCE hoặc Composer)
 
-Hỗ trợ định dạng truyện đẹp (TinyMCE hoặc Composer)
+---
 
-6. 🧠 Gợi ý truyện thông minh
+## 6. 🧠 Gợi ý truyện thông minh
+
 Tùy chỉnh theo user:
+- Lịch sử đọc
+- Thể loại yêu thích
+- Tác giả đã follow
+- Nếu chưa đủ dữ liệu: thêm trending / random
 
-Lịch sử đọc
+---
 
-Thể loại yêu thích
+## 7. 🗂️ Cấu trúc thư mục (dev-friendly)
 
-Tác giả đã follow
-
-Nếu chưa đủ dữ liệu: thêm trending / random
-
-7. 🗂️ Cấu trúc thư mục (dev-friendly)
-bash
-Sao chép
-Chỉnh sửa
+```bash
 truyenviethay/
 ├── backend/
 │   ├── config/
@@ -114,40 +117,45 @@ truyenviethay/
 │   │   └── main.js
 │   ├── .env
 │   └── vite.config.js
-8. 🗃️ Database (MySQL)
-Schema đầy đủ: users, stories, chapters, comments, favorites, history, notifications, roles, v.v.
+```
 
-Tối ưu bằng index, chuẩn hóa
+---
 
-Hỗ trợ migrate
+## 8. 🗃️ Database (MySQL)
 
-Chuẩn bị cho scale: nhiều tác giả, nhiều thể loại
+- Schema đầy đủ: `users`, `stories`, `chapters`, `comments`, `favorites`, `history`, `notifications`, `roles`, v.v.
+- Tối ưu bằng index, chuẩn hóa
+- Hỗ trợ migrate
+- Chuẩn bị cho scale: nhiều tác giả, nhiều thể loại
 
-9. 🌐 API Design
-RESTful API theo chuẩn /api/v1/
+---
 
-Authentication bằng JWT: access + refresh token
+## 9. 🌐 API Design
 
-Middleware rõ ràng: xử lý lỗi, phân quyền
+- RESTful API theo chuẩn `/api/v1/`
+- Authentication bằng JWT: access + refresh token
+- Middleware rõ ràng: xử lý lỗi, phân quyền
+- Chuẩn bị sẵn cho tích hợp Mobile App Client
 
-Chuẩn bị sẵn cho tích hợp Mobile App Client
+---
 
-10. 🚀 Định hướng tương lai
-📱 App Mobile (Flutter / Vue Native)
+## 10. 🚀 Định hướng tương lai
 
-💸 Thanh toán / Donate (Momo, ZaloPay)
+- 📱 App Mobile (Flutter / Vue Native)
+- 💸 Thanh toán / Donate (Momo, ZaloPay)
+- 🔔 Realtime Notification
+- ⚙️ SSR + chuẩn SEO
+- 📈 Scale lớn: tách microservices
 
-🔔 Realtime Notification
+---
 
-⚙️ SSR + chuẩn SEO
+## 11. 💡 Coding Convention
 
-📈 Scale lớn: tách microservices
+- Viết **Clean Code**
+- Comment đúng chỗ, không thừa
+- Chia rõ controller / service / model
+- Cấu trúc thư mục theo chức năng, dễ maintain
 
-11. 💡 Coding Convention
-Viết Clean Code
+---
 
-Comment đúng chỗ, không thừa
-
-Chia rõ controller / service / model
-
-Cấu trúc thư mục theo chức năng, dễ maintain
+> 📩 Nếu bạn muốn đóng góp, mở PR hoặc liên hệ trực tiếp với mình qua email hoặc issue trên repo nhé!
