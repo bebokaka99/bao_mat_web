@@ -110,7 +110,7 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const authStore = useAuthStore(); // Sử dụng authStore
+    const authStore = useAuthStore(); 
 
     const username = ref("");
     const password = ref("");
@@ -146,7 +146,7 @@ export default {
         authStore.setToken(response.token);
         authStore.setUser(response.user);
         errorMessage.value = response.message || "Đăng nhập thành công!";
-        setTimeout(() => router.push("/truyen-chu"), 1000); // Chuyển hướng đến /truyen-chu
+        setTimeout(() => router.push("/truyen-chu"), 1000);
       } catch (error) {
         console.error("Login failed:", error);
         // Hiển thị thông báo lỗi chi tiết
@@ -241,7 +241,7 @@ body {
 .form-title {
   font-size: 2rem;
   font-weight: 600;
-  color: #4CAF50; /* Xanh lá */
+  color: #4CAF50; 
   margin-bottom: 15px;
   text-align: center;
 }
@@ -269,7 +269,7 @@ body {
 }
 
 .input-group input:focus {
-  border-color: #388e3c; /* Xanh lá đậm hơn khi focus */
+  border-color: #388e3c; 
   box-shadow: 0 0 6px rgba(76, 175, 80, 0.2);
   outline: none;
 }
@@ -280,7 +280,7 @@ body {
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  color: #cccccc; /* Xám nhạt */
+  color: #cccccc;
   font-size: 1rem;
   display: flex;
   align-items: center;
@@ -289,7 +289,7 @@ body {
 }
 
 .input-group label i {
-  color: #4CAF50; /* Icon xanh lá */
+  color: #4CAF50; 
   font-size: 1rem;
 }
 
@@ -297,8 +297,8 @@ body {
   top: -1px;
   left: 5px;
   font-size: 0.8rem;
-  color: #4CAF50; /* Xanh lá khi active */
-  background: #222; /* Nền xám đậm */
+  color: #4CAF50; 
+  background: #222; 
   padding: 0 5px;
   border-radius: 4px;
 }
@@ -315,12 +315,12 @@ body {
 }
 
 .toggle-password i {
-  color: #4CAF50; /* Icon xanh lá */
+  color: #4CAF50;
   font-size: 1rem;
 }
 
 .toggle-password:hover i {
-  color: #388e3c; /* Xanh lá đậm hơn khi hover */
+  color: #388e3c; 
 }
 
 /* Ghi nhớ mật khẩu và Quên mật khẩu */
@@ -339,22 +339,22 @@ body {
 
 .remember-me input[type="checkbox"] {
   margin: 0;
-  accent-color: #4CAF50; /* Checkbox xanh lá */
+  accent-color: #4CAF50; 
 }
 
 .remember-me label {
   font-size: 0.9rem;
-  color: #cccccc; /* Xám nhạt */
+  color: #cccccc; 
 }
 
 .forgot-password a {
   font-size: 0.9rem;
-  color: #4CAF50; /* Xanh lá */
+  color: #4CAF50;
   text-decoration: none;
 }
 
 .forgot-password a:hover {
-  color: #388e3c; /* Xanh lá đậm hơn khi hover */
+  color: #388e3c; 
   text-decoration: underline;
 }
 
@@ -364,10 +364,10 @@ body {
   margin: 0 auto;
   display: block;
   padding: 12px;
-  background: linear-gradient(90deg, #4CAF50, #66BB6A); /* Gradient xanh lá */
+  background: linear-gradient(90deg, #4CAF50, #66BB6A);
   border: none;
   border-radius: 8px;
-  color: #1a1a1a; /* Chữ đen */
+  color: #1a1a1a; 
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
@@ -388,7 +388,7 @@ body {
 
 .social-login p {
   font-size: 0.9rem;
-  color: #cccccc; /* Xám nhạt */
+  color: #cccccc; 
   margin-bottom: 10px;
 }
 
@@ -408,15 +408,15 @@ body {
   justify-content: center;
   gap: 6px;
   background: transparent;
-  border: 1px solid #4CAF50; /* Viền xanh lá */
+  border: 1px solid #4CAF50; 
   cursor: pointer;
   transition: all 0.3s ease;
   color: #ffffff;
 }
 
 .social-btn:hover {
-  background: #4CAF50; /* Nền xanh lá khi hover */
-  color: #1a1a1a; /* Chữ đen */
+  background: #4CAF50; 
+  color: #1a1a1a;
 }
 
 .social-btn i {
@@ -453,7 +453,7 @@ body {
 }
 
 .login-link a:hover {
-  color: #388e3c; /* Xanh lá đậm hơn khi hover */
+  color: #388e3c;
   text-decoration: underline;
 }
 

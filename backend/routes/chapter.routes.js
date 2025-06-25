@@ -7,7 +7,7 @@ const { authenticateToken, authorizeRoles } = require("../middleware/auth");
 router.post(
   "/",
   authenticateToken,
-  authorizeRoles("author", "admin"), // chỉ tác giả hoặc admin được thêm chương
+  authorizeRoles("author", "admin"), 
   chapterController.createChapter
 );
 

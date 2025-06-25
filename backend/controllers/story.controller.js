@@ -106,8 +106,6 @@ const approveOrRejectStory = async (req, res) => {
   if (status === 'tu_choi' && !adminNote) {
     return res.status(400).json({ message: "Vui lòng cung cấp ghi chú khi từ chối truyện." });
   }
-  
-  // SỬA LỖI TẠI ĐÂY: Đổi 'da_duyet' thành 'duyet' để khớp với giá trị ENUM trong database
   if (!['duyet', 'tu_choi'].includes(status)) {
     return res.status(400).json({ message: "Trạng thái không hợp lệ." });
   }
@@ -120,7 +118,6 @@ const approveOrRejectStory = async (req, res) => {
     );
     
     if (result > 0) {
-      // SỬA LỖI: Đồng bộ thông báo thành công với giá trị 'duyet'
       res.status(200).json({
         message: `Truyện đã được ${status === "duyet" ? "duyệt" : "từ chối"}`,
       });
