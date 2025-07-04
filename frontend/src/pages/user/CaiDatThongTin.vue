@@ -138,6 +138,7 @@
         </div>
       </div>
     </main>
+    <AppFooter />
   </div>
 </template>
 
@@ -148,10 +149,11 @@ import { useAuthStore } from '@/stores/auth';
 import { getMe, updateMe, changePassword } from '@/api/authApi';
 import AppHeader from '@/components/AppHeader.vue';
 import CustomSelect from '@/components/CustomSelect.vue';
+import AppFooter from '@/components/AppFooter.vue';
 
 export default {
   name: 'CaiDatThongTin',
-  components: { AppHeader, CustomSelect },
+  components: { AppHeader, CustomSelect, AppFooter },
   setup() {
     const router = useRouter();
     const authStore = useAuthStore();

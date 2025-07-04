@@ -81,6 +81,7 @@
         </div>
       </div>
     </main>
+    <AppFooter />
   </div>
 </template>
 
@@ -90,6 +91,7 @@ import AppHeader from '@/components/AppHeader.vue';
 import { useAuthStore } from '@/stores/auth';
 import { getPendingStories, getAllStories, approveOrRejectStory } from '@/api/admin.js';
 import { getStoryById } from '@/api/story.js';
+import AppFooter from '@/components/AppFooter.vue';
 
 const authStore = useAuthStore();
 const defaultCover = 'http://localhost:3000/uploads_img/truyen/default-cover.jpg';

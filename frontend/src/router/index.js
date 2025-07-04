@@ -8,6 +8,7 @@ import QuanLyNguoiDung from '../pages/user/QuanLyNguoiDung.vue';
 import { useAuthStore } from '@/stores/auth';
 import DangTruyen from '@/pages/user/DangTruyen.vue';
 
+
 const routes = [
   {
     path: '/',

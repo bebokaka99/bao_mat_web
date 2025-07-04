@@ -127,6 +127,7 @@
         </div>
       </section>
     </main>
+    <AppFooter />
   </div>
 </template>
 
@@ -136,11 +137,12 @@ import { useAuthStore } from '@/stores/auth';
 import userApi from '@/api/user.api';
 import { useRouter } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
+import AppFooter from '@/components/AppFooter.vue';
 import CustomSelect from '@/components/CustomSelect.vue';
 
 export default {
   name: 'QuanLyNguoiDung',
-  components: { AppHeader, CustomSelect },
+  components: { AppHeader, AppFooter, CustomSelect },
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();

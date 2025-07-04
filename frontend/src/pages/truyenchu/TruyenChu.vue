@@ -13,6 +13,7 @@
       <StoryPackages :category="category" :stories="displayStories" />
     </main>
   </div>
+  <AppFooter />
 </template>
 
 <script>
@@ -20,6 +21,7 @@
 import AppHeader from "@/components/AppHeader.vue";
 import NotificationBoard from "@/components/NotificationBoard.vue";
 import StoryPackages from "@/components/StoryPackages.vue";
+import AppFooter from "@/components/AppFooter.vue";
 // import { getAllStories, getChaptersByStoryId } from "@/api/story";
 
 export default {
@@ -28,6 +30,7 @@ export default {
     AppHeader,
     NotificationBoard,
     StoryPackages,
+    AppFooter,
   },
   data() {
     return {

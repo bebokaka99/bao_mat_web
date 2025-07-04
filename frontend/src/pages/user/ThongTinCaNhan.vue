@@ -86,6 +86,7 @@
         </div>
       </section>
     </main>
+    <AppFooter /> 
   </div>
 </template>
 
@@ -94,10 +95,11 @@ import { computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { getMe } from '@/api/authApi';
 import AppHeader from '@/components/AppHeader.vue';
+import AppFooter from '../../components/AppFooter.vue';
 
 export default {
   name: 'ThongTinCaNhan',
-  components: { AppHeader },
+  components: { AppHeader, AppFooter },
   setup() {
     const authStore = useAuthStore();
 
