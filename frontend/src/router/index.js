@@ -111,6 +111,16 @@ const routes = [
       roles: ['author', 'admin'],
     },
   },
+  // ROUTE MỚI CHO AUTHOR
+  {
+    path: '/user/quan-ly-truyen',
+    name: 'AuthorStoryManagement',
+    component: () => import('@/pages/user/MyStoryManagement.vue'),
+    meta: { 
+        requiresAuth: true, 
+        roles: ['author', 'admin'] 
+    }
+  },
   {
     path: '/admin/quan-ly-truyen',
     name: 'AdminStoryManagement',

@@ -83,6 +83,9 @@
           <router-link v-if="user?.role === 'admin'" to="/admin/quan-ly-truyen" class="profile-nav-tab">
             <i class="fa-solid fa-list-check"></i> Quản lý truyện
           </router-link>
+          <router-link v-if="user?.role === 'author'" to="/user/quan-ly-truyen" class="profile-nav-tab">
+            <i class="fa-solid fa-list-check"></i> Quản lý truyện
+          </router-link>
         </div>
       </section>
     </main>
